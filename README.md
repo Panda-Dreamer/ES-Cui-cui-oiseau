@@ -7,4 +7,4 @@ Endpoints:
 /get-bird (GET) query: specie --> Get information fetched about a specie
 
 
-**Use the example client to test **
+__Use the example client to test__

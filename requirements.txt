@@ -1,0 +1,10 @@
+beautifulsoup4==4.11.1
+bottle==0.12.19
+librosa==0.9.1
+numpy==1.22.1
+PyInstaller==5.0
+requests==2.26.0
+soundfile==0.10.3.post1
+tensorflow==2.8.0
+tflite_runtime==2.8.0
+webview==0.1.5

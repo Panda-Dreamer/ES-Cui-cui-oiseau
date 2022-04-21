@@ -9,6 +9,7 @@ from datetime import datetime, date
 import traceback
 from bs4 import BeautifulSoup
 from multiprocessing import freeze_support
+import io
 
 import config as cfg
 import analyze
@@ -55,7 +56,23 @@ def resultPooling(lines, num_results=5, pmode='avg'):
 
 @route('/', method='GET')
 def handleRequest():
-    return "Up and runnning"
+    return """
+  <html>
+  <head>
+    <title>Test CUI-CUI</title>
+  </head>
+  <body>
+    <h1>Upload File v1.3</h1>
+    <form action="/analyze" method="post" enctype="multipart/form-data">
+      Category:      <input type="text" name="meta"  value='{"lat": -1, "lon": -1, "week": -1, "overlap": 0.0, "sensitivity": 1.0, "sf_thresh": 0.03, "pmode": "avg", "num_results": 5, "save": false }'/>
+      Select a file: <input type="file" name="audio" accept=".m4a, .mp3, .wav" required/>
+      Display: <input type="text" name="display" value='name'/>
+      <input type="submit" value="Start upload" />
+    </form>
+   
+  </body>
+</html>
+  """
 
 
 @route('/get-bird', method='GET')
@@ -113,11 +130,9 @@ def handleAnalyzeRequest():
 
     # Print divider
     print('{}  {}  {}'.format('#' * 20, datetime.now(), '#' * 20))
-
-    # Get request payload
+    print('---------------------')
     upload = bottle.request.files.get('audio')
     mdata = json.loads(bottle.request.forms.get('meta'))
-    print(mdata)
 
     # Get filename
     name, ext = os.path.splitext(upload.filename.lower())
@@ -220,7 +235,11 @@ def handleAnalyzeRequest():
 
             # Return response
             del data['meta']
-            return json.dumps(data)
+            display = bottle.request.forms.get('display')
+            if display == 'name':
+              return 'Résultat: {}, \n Confiance: {}%'.format(data["results"][0][0],str(round(data["results"][0][1], 3) * 100))
+            else:
+              return json.dumps(data)
 
         else:
             data = {'msg': 'Error during analysis.'}
@@ -240,7 +259,34 @@ def handleAnalyzeRequest():
         data = {'msg': 'Error during analysis: {}'.format(str(e))}
         return json.dumps(data)
 
+@bottle.route('/<:re:.*>', method='OPTIONS')
+def enable_cors_generic_route():
+    """
+    This route takes priority over all others. So any request with an OPTIONS
+    method will be handled by this function.
 
+    See: https://github.com/bottlepy/bottle/issues/402
+
+    NOTE: This means we won't 404 any invalid path that is an OPTIONS request.
+    """
+    add_cors_headers()
+
+@bottle.hook('after_request')
+def enable_cors_after_request_hook():
+    """
+    This executes after every route. We use it to attach CORS headers when
+    applicable.
+    """
+    add_cors_headers()
+
+def add_cors_headers():
+      bottle.response.headers['Access-Control-Allow-Origin'] = '*'
+      bottle.response.headers['Access-Control-Allow-Methods'] = \
+            'GET, POST, PUT, OPTIONS'
+      bottle.response.headers['Access-Control-Allow-Headers'] = \
+            'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+
+      
 if __name__ == '__main__':
 
     # Freeze support for excecutable

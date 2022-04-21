@@ -1,0 +1,36 @@
+{
+  "msg": "success",
+  "results": [
+    [
+      "Passer domesticus_Moineau domestique",
+      0.8867333333333333
+    ],
+    [
+      "Passer italiae_Moineau cisalpin",
+      0.20775
+    ],
+    [
+      "Turdus falcklandii_Merle austral",
+      0.0349
+    ],
+    [
+      "Mimus saturninus_Moqueur plomb\u00e9",
+      0.024233333333333332
+    ],
+    [
+      "Molothrus bonariensis_Vacher luisant",
+      0.008633333333333333
+    ]
+  ],
+  "meta": {
+    "lat": -1,
+    "lon": -1,
+    "week": -1,
+    "overlap": 0.0,
+    "sensitivity": 1.0,
+    "sf_thresh": 0.03,
+    "pmode": "avg",
+    "num_results": 5,
+    "save": false
+  }
+}

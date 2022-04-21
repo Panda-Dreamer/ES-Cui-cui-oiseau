@@ -7,4 +7,3 @@ requests==2.26.0
 soundfile==0.10.3.post1
 tensorflow==2.8.0
 tflite_runtime==2.8.0
-webview==0.1.5

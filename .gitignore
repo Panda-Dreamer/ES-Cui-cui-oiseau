@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#process files
+tmp.json
+tmp.txt
+tmp.m4a
+tmp.wav
+tmp.mp3
+error_log.txt

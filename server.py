@@ -100,8 +100,81 @@ def handleAnalyzeRequest():
     print('---------------------')
     upload = bottle.request.files.get('audio')
     mdata = json.loads(bottle.request.forms.get('meta'))
-    yield 'GOT DATA'
-    # Get filename
+    return get_bird(upload,mdata)
+    
+
+@bottle.route('/<:re:.*>', method='OPTIONS')
+def enable_cors_generic_route():
+    """
+    This route takes priority over all others. So any request with an OPTIONS
+    method will be handled by this function.
+
+    See: https://github.com/bottlepy/bottle/issues/402
+
+    NOTE: This means we won't 404 any invalid path that is an OPTIONS request.
+    """
+    add_cors_headers()
+
+@bottle.hook('after_request')
+def enable_cors_after_request_hook():
+    """
+    This executes after every route. We use it to attach CORS headers when
+    applicable.
+    """
+    add_cors_headers()
+
+def add_cors_headers():
+      bottle.response.headers['Access-Control-Allow-Origin'] = '*'
+      bottle.response.headers['Access-Control-Allow-Methods'] = \
+            'GET, POST, PUT, OPTIONS'
+      bottle.response.headers['Access-Control-Allow-Headers'] = \
+            'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+def get_info(specie):
+  
+    if specie is None:
+        return "Faut indiquer une espèce dum dum: url?specie=dumdum et en URL encoded dumdum"
+#https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=Troglodyte%20de%20Sharpe
+    link = "https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=" + specie
+    r = request(method='GET', url=link)
+    if r.status_code != 200:
+        return "Erreur lors de la requête à l'API eBird"
+
+    data = json.loads(r.text)
+    if len(data) == 0:
+        return "Aucun résultat pour cette espèce"
+
+    code, name = data[0]["code"], data[0]["name"]
+
+    link = "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&locale=fr_FR&species="+code
+
+    r = request(method='GET', url=link)
+    if r.status_code != 200:
+        return "Erreur lors de la 2eme requête à l'API eBird"
+
+    data2 = json.loads(r.text)
+    if len(data) == 0:
+        return "Aucun résultat pour ce code espèce"
+
+    rdata = {
+        "sciName": data2[0]["sciName"],
+        "comName": data2[0]["comName"],
+        "family": data2[0]["familySciName"],
+    }
+
+    r2 = request(method='GET', url="https://ebird.org/species/"+code)
+    if r2.status_code != 200:
+        return "Erreur lors de la 3eme requête à l'API eBird"
+
+    soup = BeautifulSoup(r2.text, 'html.parser')
+
+    imageDIV = str(soup.find_all("div", {"class": "MediaThumbnail Media--playButton"})  [0]).split("src")[1].split("\"")[1]
+    rdata["image"] = imageDIV
+    return rdata
+
+
+  
+def get_bird(upload,mdata)
+# Get filename
     name, ext = os.path.splitext(upload.filename.lower())
 
     # Save file
@@ -171,7 +244,6 @@ def handleAnalyzeRequest():
             analyze.predictSpeciesList()
 
         # Analyze file
-        yield 'ANALYZING FILE...'
         success = analyze.analyzeFile((file_path, cfg.getConfig()))
 
         # Parse results
@@ -205,7 +277,6 @@ def handleAnalyzeRequest():
             del data['meta']
             display = bottle.request.forms.get('display')
             if display == 'name':
-              yield 'FETCHING INFORMATION...'
               bdata = get_info(data["results"][0][0].split("_")[1])
               return '''<html>
               
@@ -242,75 +313,6 @@ def handleAnalyzeRequest():
 
         data = {'msg': 'Error during analysis: {}'.format(str(e))}
         return json.dumps(data)
-
-@bottle.route('/<:re:.*>', method='OPTIONS')
-def enable_cors_generic_route():
-    """
-    This route takes priority over all others. So any request with an OPTIONS
-    method will be handled by this function.
-
-    See: https://github.com/bottlepy/bottle/issues/402
-
-    NOTE: This means we won't 404 any invalid path that is an OPTIONS request.
-    """
-    add_cors_headers()
-
-@bottle.hook('after_request')
-def enable_cors_after_request_hook():
-    """
-    This executes after every route. We use it to attach CORS headers when
-    applicable.
-    """
-    add_cors_headers()
-
-def add_cors_headers():
-      bottle.response.headers['Access-Control-Allow-Origin'] = '*'
-      bottle.response.headers['Access-Control-Allow-Methods'] = \
-            'GET, POST, PUT, OPTIONS'
-      bottle.response.headers['Access-Control-Allow-Headers'] = \
-            'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
-def get_info(specie):
-  
-    if specie is None:
-        return "Faut indiquer une espèce dum dum: url?specie=dumdum et en URL encoded dumdum"
-#https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=Troglodyte%20de%20Sharpe
-    link = "https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=" + specie
-    r = request(method='GET', url=link)
-    if r.status_code != 200:
-        return "Erreur lors de la requête à l'API eBird"
-
-    data = json.loads(r.text)
-    if len(data) == 0:
-        return "Aucun résultat pour cette espèce"
-
-    code, name = data[0]["code"], data[0]["name"]
-
-    link = "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&locale=fr_FR&species="+code
-
-    r = request(method='GET', url=link)
-    if r.status_code != 200:
-        return "Erreur lors de la 2eme requête à l'API eBird"
-
-    data2 = json.loads(r.text)
-    if len(data) == 0:
-        return "Aucun résultat pour ce code espèce"
-
-    rdata = {
-        "sciName": data2[0]["sciName"],
-        "comName": data2[0]["comName"],
-        "family": data2[0]["familySciName"],
-    }
-
-    r2 = request(method='GET', url="https://ebird.org/species/"+code)
-    if r2.status_code != 200:
-        return "Erreur lors de la 3eme requête à l'API eBird"
-
-    soup = BeautifulSoup(r2.text, 'html.parser')
-
-    imageDIV = str(soup.find_all("div", {"class": "MediaThumbnail Media--playButton"})  [0]).split("src")[1].split("\"")[1]
-    rdata["image"] = imageDIV
-    return rdata
-      
 if __name__ == '__main__':
 
     # Freeze support for excecutable

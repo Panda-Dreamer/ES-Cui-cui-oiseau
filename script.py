@@ -7,7 +7,7 @@ def start_script():
     try:
         # Make sure 'python' command is available
         print("Launching server...")
-        os.system("python3 server.py --language fr") 
+        os.system("python3 server.py --locale fr") 
     except Exception as e: 
         # Script crashed, lets restart it!
         print(e)

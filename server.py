@@ -1,3 +1,4 @@
+from gevent import monkey; monkey.patch_all()
 import os
 import json
 from numpy import imag
@@ -99,7 +100,7 @@ def handleAnalyzeRequest():
     print('---------------------')
     upload = bottle.request.files.get('audio')
     mdata = json.loads(bottle.request.forms.get('meta'))
-
+    yield 'GOT DATA'
     # Get filename
     name, ext = os.path.splitext(upload.filename.lower())
 
@@ -170,6 +171,7 @@ def handleAnalyzeRequest():
             analyze.predictSpeciesList()
 
         # Analyze file
+        yield 'ANALYZING FILE...'
         success = analyze.analyzeFile((file_path, cfg.getConfig()))
 
         # Parse results
@@ -203,6 +205,7 @@ def handleAnalyzeRequest():
             del data['meta']
             display = bottle.request.forms.get('display')
             if display == 'name':
+              yield 'FETCHING INFORMATION...'
               bdata = get_info(data["results"][0][0].split("_")[1])
               return '''<html>
               
@@ -363,4 +366,4 @@ if __name__ == '__main__':
     print('UP AND RUNNING! LISTENING ON {}:{}'.format(
         args.host, args.port), flush=True)
   
-    bottle.run(host=args.host, port=args.port, quiet=False, fast=True)
+    bottle.run(host=args.host, port=args.port, quiet=False, fast=True, server='gevent')

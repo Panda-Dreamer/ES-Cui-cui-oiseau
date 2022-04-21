@@ -1,6 +1,7 @@
 from gevent import monkey; monkey.patch_all()
 import os
 import json
+import gevent
 from numpy import imag
 from requests import request
 from bottle import get, post, route
@@ -83,8 +84,12 @@ def handleRequest():
 @route('/get-bird', method='GET')
 def handleRequest2():
     specie = bottle.request.query["specie"]
-    data = get_info(specie)
-    return json.dumps(data)
+    body = gevent.queue.Queue()
+    worker = get_info(specie)
+    worker.on_data(body.put)
+    worker.on_finish(lambda: body.put(StopIteration))
+    worker.start()
+    return json.dumps(body)
 
     # API EBIRD s08bvu01hv7h
     # https://en.wikipedia.org/w/api.php?action=query&titles=Eagle&prop=extracts&format=json
@@ -173,7 +178,7 @@ def get_info(specie):
 
 
   
-def get_bird(upload,mdata)
+def get_bird(upload,mdata):
 # Get filename
     name, ext = os.path.splitext(upload.filename.lower())
 
@@ -244,6 +249,9 @@ def get_bird(upload,mdata)
             analyze.predictSpeciesList()
 
         # Analyze file
+
+
+    
         success = analyze.analyzeFile((file_path, cfg.getConfig()))
 
         # Parse results

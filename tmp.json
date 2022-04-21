@@ -2,24 +2,24 @@
   "msg": "success",
   "results": [
     [
-      "Passer domesticus_Moineau domestique",
-      0.8867333333333333
+      "Haemorhous mexicanus_Roselin familier",
+      0.05027250000000001
     ],
     [
-      "Passer italiae_Moineau cisalpin",
-      0.20775
+      "Junco hyemalis_Junco ardois\u00c3\u00a9",
+      0.036812499999999984
     ],
     [
-      "Turdus falcklandii_Merle austral",
-      0.0349
+      "Spinus tristis_Chardonneret jaune",
+      0.026755
     ],
     [
-      "Mimus saturninus_Moqueur plomb\u00e9",
-      0.024233333333333332
+      "Poecile atricapillus_M\u00c3\u00a9sange \u00c3\u00a0 t\u00c3\u00aate noire",
+      0.02310999999999999
     ],
     [
-      "Molothrus bonariensis_Vacher luisant",
-      0.008633333333333333
+      "Baeolophus bicolor_M\u00c3\u00a9sange bicolore",
+      0.022674999999999994
     ]
   ],
   "meta": {

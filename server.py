@@ -10,7 +10,7 @@ import traceback
 from bs4 import BeautifulSoup
 from multiprocessing import freeze_support
 import io
-from gevent import monkey; monkey.patch_all()
+
 
 import config as cfg
 import analyze
@@ -57,6 +57,8 @@ def resultPooling(lines, num_results=5, pmode='avg'):
 
 @route('/', method='GET')
 def handleRequest():
+    return "Test"
+    os.sleep(20)
     return """
   <html>
   <head>
@@ -363,4 +365,4 @@ if __name__ == '__main__':
     print('UP AND RUNNING! LISTENING ON {}:{}'.format(
         args.host, args.port), flush=True)
   
-    bottle.run(host=args.host, port=args.port, quiet=False, fast=True, server='gevent')
+    bottle.run(host=args.host, port=args.port, quiet=False, fast=True)

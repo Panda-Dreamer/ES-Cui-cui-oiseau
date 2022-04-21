@@ -57,8 +57,6 @@ def resultPooling(lines, num_results=5, pmode='avg'):
 
 @route('/', method='GET')
 def handleRequest():
-    return "Test"
-    os.sleep(20)
     return """
   <html>
   <head>

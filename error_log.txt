@@ -1,0 +1,33 @@
+Error: Cannot analyze file tmp.mp3.
+Traceback (most recent call last):
+  File "server.py", line 206, in handleAnalyzeRequest
+    bdata = get_info(data["results"][0][0].split("_")[1])
+  File "server.py", line 275, in get_info
+    r = request(method='GET', url=link)
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/requests/api.py", line 61, in request
+    return session.request(method=method, url=url, **kwargs)
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/requests/sessions.py", line 542, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/requests/sessions.py", line 655, in send
+    r = adapter.send(request, **kwargs)
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/requests/adapters.py", line 439, in send
+    resp = conn.urlopen(
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/urllib3/connectionpool.py", line 699, in urlopen
+    httplib_response = self._make_request(
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/urllib3/connectionpool.py", line 382, in _make_request
+    self._validate_conn(conn)
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/urllib3/connectionpool.py", line 1010, in _validate_conn
+    conn.connect()
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/urllib3/connection.py", line 392, in connect
+    self.ssl_context = create_urllib3_context(
+  File "/opt/virtualenvs/python3/lib/python3.8/site-packages/urllib3/util/ssl_.py", line 312, in create_urllib3_context
+    context.options |= options
+  File "/usr/lib/python3.8/ssl.py", line 602, in options
+    super(SSLContext, SSLContext).options.__set__(self, value)
+  File "/usr/lib/python3.8/ssl.py", line 602, in options
+    super(SSLContext, SSLContext).options.__set__(self, value)
+  File "/usr/lib/python3.8/ssl.py", line 602, in options
+    super(SSLContext, SSLContext).options.__set__(self, value)
+  [Previous line repeated 479 more times]
+RecursionError: maximum recursion depth exceeded
+

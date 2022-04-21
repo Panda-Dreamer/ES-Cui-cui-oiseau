@@ -10,6 +10,7 @@ import traceback
 from bs4 import BeautifulSoup
 from multiprocessing import freeze_support
 import io
+from gevent import monkey; monkey.patch_all()
 
 import config as cfg
 import analyze
@@ -361,4 +362,5 @@ if __name__ == '__main__':
     # Run server
     print('UP AND RUNNING! LISTENING ON {}:{}'.format(
         args.host, args.port), flush=True)
-    bottle.run(host=args.host, port=args.port, quiet=True)
+  
+    bottle.run(host=args.host, port=args.port, quiet=False, fast=True, server='gevent')

@@ -2,24 +2,24 @@
   "msg": "success",
   "results": [
     [
-      "Haemorhous mexicanus_Roselin familier",
-      0.05027250000000001
+      "Columba palumbus_Pigeon ramier",
+      0.10485384615384614
     ],
     [
-      "Junco hyemalis_Junco ardois\u00e9",
-      0.036812499999999984
+      "Turdus merula_Merle noir",
+      0.09994230769230766
     ],
     [
-      "Spinus tristis_Chardonneret jaune",
-      0.026755
+      "Oriolus oriolus_Loriot d'Europe",
+      0.018566666666666662
     ],
     [
-      "Poecile atricapillus_M\u00e9sange \u00e0 t\u00eate noire",
-      0.02310999999999999
+      "Ficedula albicollis_Gobemouche \u00e0 collier",
+      0.016674358974358976
     ],
     [
-      "Baeolophus bicolor_M\u00e9sange bicolore",
-      0.022674999999999994
+      "Erithacus rubecula_Rougegorge familier",
+      0.01665897435897434
     ]
   ],
   "meta": {

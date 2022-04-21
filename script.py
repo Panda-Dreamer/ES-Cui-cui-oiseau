@@ -1,13 +1,13 @@
 from subprocess import run
 from time import sleep
-
+import os
 
 restart_timer = 2
 def start_script():
     try:
         # Make sure 'python' command is available
         print("Launching server...")
-        run("python3 server.py --language fr", check=True) 
+        os.system("python3 server.py --language fr") 
     except Exception as e: 
         # Script crashed, lets restart it!
         print(e)

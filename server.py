@@ -62,11 +62,14 @@ def handleRequest():
     <title>Test CUI-CUI</title>
   </head>
   <body>
-    <h1>Upload File v1.3</h1>
+    <h1>Analyse de CUI CUI V0.2</h1>
     <form action="/analyze" method="post" enctype="multipart/form-data">
-      Category:      <input type="text" name="meta"  value='{"lat": -1, "lon": -1, "week": -1, "overlap": 0.0, "sensitivity": 1.0, "sf_thresh": 0.03, "pmode": "avg", "num_results": 5, "save": false }'/>
-      Select a file: <input type="file" name="audio" accept=".m4a, .mp3, .wav" required/>
+      Metadata (ne pas modifier): <input type="text" name="meta"  value='{"lat": -1, "lon": -1, "week": -1, "overlap": 0.0, "sensitivity": 1.0, "sf_thresh": 0.03, "pmode": "avg", "num_results": 5, "save": false }'/>
+  <br>
+     Fichier audio à analyser: <input type="file" name="audio" accept=".m4a, .mp3, .wav" required/>
+  <br>
       Display: <input type="text" name="display" value='name'/>
+  <br>
       <input type="submit" value="Start upload" />
     </form>
    
@@ -78,46 +81,8 @@ def handleRequest():
 @route('/get-bird', method='GET')
 def handleRequest2():
     specie = bottle.request.query["specie"]
-    if specie is None:
-        return "Faut indiquer une espèce dum dum: url?specie=dumdum et en URL encoded dumdum"
-#https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=Troglodyte%20de%20Sharpe
-    link = "https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=" + specie
-    r = request(method='GET', url=link)
-    if r.status_code != 200:
-        return "Erreur lors de la requête à l'API eBird"
-
-    data = json.loads(r.text)
-    if len(data) == 0:
-        return "Aucun résultat pour cette espèce"
-
-    code, name = data[0]["code"], data[0]["name"]
-
-    link = "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&locale=fr_FR&species="+code
-
-    r = request(method='GET', url=link)
-    if r.status_code != 200:
-        return "Erreur lors de la 2eme requête à l'API eBird"
-
-    data2 = json.loads(r.text)
-    if len(data) == 0:
-        return "Aucun résultat pour ce code espèce"
-
-    rdata = {
-        "sciName": data2[0]["sciName"],
-        "comName": data2[0]["comName"],
-        "family": data2[0]["familySciName"],
-    }
-
-    r2 = request(method='GET', url="https://ebird.org/species/"+code)
-    if r2.status_code != 200:
-        return "Erreur lors de la 3eme requête à l'API eBird"
-
-    soup = BeautifulSoup(r2.text, 'html.parser')
-
-    imageDIV = str(soup.find_all("div", {"class": "MediaThumbnail Media--playButton"})  [0]).split("src")[1].split("\"")[1]
-    rdata["image"] = imageDIV
-  
-    return json.dumps(rdata)
+    data = get_info(specie)
+    return json.dumps(data)
 
     # API EBIRD s08bvu01hv7h
     # https://en.wikipedia.org/w/api.php?action=query&titles=Eagle&prop=extracts&format=json
@@ -237,6 +202,21 @@ def handleAnalyzeRequest():
             del data['meta']
             display = bottle.request.forms.get('display')
             if display == 'name':
+              bdata = get_info(data["results"][0][0].split("_")[1])
+              return '''<html>
+              
+              <h1> {} </h1>
+              
+              <h3>Confiance: {}%</h5>
+              
+              <h3>Famille: {} </h5>
+              
+              <h3> Nom scientifique: {} </h5>
+              
+              <img src="{}" alt="img-oiseau" style="height:100%; width:auto">
+              <html>
+              '''.format(bdata["comName"],str(round(data["results"][0][1], 3) * 100),bdata["family"], bdata["sciName"], bdata["image"])
+            elif display == 'name-short':
               return 'Résultat: {}, \n Confiance: {}%'.format(data["results"][0][0],str(round(data["results"][0][1], 3) * 100))
             else:
               return json.dumps(data)
@@ -285,7 +265,47 @@ def add_cors_headers():
             'GET, POST, PUT, OPTIONS'
       bottle.response.headers['Access-Control-Allow-Headers'] = \
             'Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token'
+def get_info(specie):
+  
+    if specie is None:
+        return "Faut indiquer une espèce dum dum: url?specie=dumdum et en URL encoded dumdum"
+#https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=Troglodyte%20de%20Sharpe
+    link = "https://api.ebird.org/v2/ref/taxon/find?locale=fr_FR&cat=species&key=jfekjedvescr&q=" + specie
+    r = request(method='GET', url=link)
+    if r.status_code != 200:
+        return "Erreur lors de la requête à l'API eBird"
 
+    data = json.loads(r.text)
+    if len(data) == 0:
+        return "Aucun résultat pour cette espèce"
+
+    code, name = data[0]["code"], data[0]["name"]
+
+    link = "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&locale=fr_FR&species="+code
+
+    r = request(method='GET', url=link)
+    if r.status_code != 200:
+        return "Erreur lors de la 2eme requête à l'API eBird"
+
+    data2 = json.loads(r.text)
+    if len(data) == 0:
+        return "Aucun résultat pour ce code espèce"
+
+    rdata = {
+        "sciName": data2[0]["sciName"],
+        "comName": data2[0]["comName"],
+        "family": data2[0]["familySciName"],
+    }
+
+    r2 = request(method='GET', url="https://ebird.org/species/"+code)
+    if r2.status_code != 200:
+        return "Erreur lors de la 3eme requête à l'API eBird"
+
+    soup = BeautifulSoup(r2.text, 'html.parser')
+
+    imageDIV = str(soup.find_all("div", {"class": "MediaThumbnail Media--playButton"})  [0]).split("src")[1].split("\"")[1]
+    rdata["image"] = imageDIV
+    return rdata
       
 if __name__ == '__main__':
 
